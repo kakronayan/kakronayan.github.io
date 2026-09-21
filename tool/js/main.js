@@ -1,5 +1,6 @@
 (function () {
   const U = window.Utils;
+  const SITE = 'https://kakronayan.github.io';
   const bootTime = Date.now();
 
   const TOOLS = [
@@ -307,7 +308,7 @@
     document.getElementById('app').innerHTML = `
       <aside class="sidebar ${state.collapsed ? 'collapsed' : ''}" id="sidebar">
         <div class="top-actions">
-          <a class="back-link" href="https://kakronayan.github.io/">← Workspace</a>
+          <a class="back-link" href="${SITE}/">← Workspace</a>
           <a class="back-link" href="https://github.com/kakronayan">Contributor</a>
           <button class="theme-btn" id="themeBtn" type="button">Theme</button>
         </div>
