@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Console — Senior Full-Stack Workspace</title>
+<title>Yan Kakrona — Personal Workspace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -339,9 +339,9 @@
 
   <header class="identity" id="work">
     <div>
-      <p class="role">SENIOR FULL-STACK LEAD</p>
-      <h1>Personal Workspace</h1>
-      <p class="desc">A working console for the tools I build and reach for daily — encoders, inspectors, bots and mini apps, kept in one place instead of scattered across tabs.</p>
+      <p class="role">SENIOR FULL-STACK DEVELOPER LEAD</p>
+      <h1>Yan Kakrona</h1>
+      <p class="desc">A working console for the tools and projects I build daily — portfolio, browser utilities, and mini apps, kept in one place. 8+ years in full-stack development at Hattha Bank and beyond.</p>
     </div>
     <div class="stat-strip">
       <div><span class="num" id="cnt-online">0</span><span class="lab">Online</span></div>
@@ -366,13 +366,14 @@
 
   <footer class="foot">
     <nav class="foot-menu">
-      <a href="#work">Work Experience</a>
+      <a href="https://github.kakronayan.dev/portfolio/#experience">Work Experience</a>
       <a href="#projects-section">Projects</a>
       <a href="#tools-section">Tools</a>
+      <a href="https://github.kakronayan.dev/portfolio/#contact">Contact</a>
     </nav>
     <div class="foot-credit">
-      <div class="line1">Software Engineer<span class="sep">·</span>© 2025<span class="sep">·</span>Kakrona Yan</div>
-      <div class="line2">Banker | Full Stack | Cloud</div>
+      <div class="line1">Yan Kakrona<span class="sep">·</span>© 2026<span class="sep">·</span>Hattha Bank Plc.</div>
+      <div class="line2">Banker · Full Stack · Cloud</div>
     </div>
   </footer>
 
@@ -396,28 +397,33 @@ const ICONS = {
   plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
 };
 
-const MODULES = [
-  { id:'codec', group:'tool', title:'Encode / Decode', tag:'Base64 · URL · Hex', status:'online', port:'01',
-    desc:'Convert text to and from Base64, URL and hex encodings, instantly, both ways.', icon:'codec' },
-  { id:'jwt', group:'tool', title:'JWT Inspector', tag:'Header · Payload · Claims', status:'online', port:'02',
-    desc:'Paste a token to decode its header and payload and read the standard claims.', icon:'jwt' },
-  { id:'regex', group:'tool', title:'Regex Tester', tag:'Live match highlighting', status:'online', port:'03',
-    desc:'Test a pattern against sample text with live highlighting and a match list.', icon:'regex' },
-  { id:'moretool', group:'tool', title:'Add tool', tag:'Extend the toolbox', status:'idle', port:'—',
-    desc:'Small, single-purpose utilities live here — wire up a new one and register it.', icon:'plus' },
+const EXTERNAL = {
+  tools: 'https://github.kakronayan.dev/tool/',
+  portfolio: 'https://github.kakronayan.dev/portfolio/',
+};
 
-  { id:'chat', group:'project', title:'Chatbot', status:'beta', port:'01',
-    desc:'A small rule-based assistant running client-side — this panel is wired and ready to point at a real model or bot API.',
+const MODULES = [
+  { id:'toolsuite', group:'tool', title:'Browser Tools Suite', tag:'Base64 · JWT · JSON · Crypto', status:'online', port:'01',
+    desc:'Full local-first utilities app — encode, decode, format, hash, and test regex in the browser.', icon:'codec', url: EXTERNAL.tools },
+  { id:'codec', group:'tool', title:'Encode / Decode', tag:'Base64 · URL · Hex', status:'online', port:'02',
+    desc:'Quick encode/decode panel for Base64, URL and hex — or open the full tools suite.', icon:'codec' },
+  { id:'jwt', group:'tool', title:'JWT Inspector', tag:'Header · Payload · Claims', status:'online', port:'03',
+    desc:'Paste a token to decode its header and payload and read the standard claims.', icon:'jwt' },
+  { id:'regex', group:'tool', title:'Regex Tester', tag:'Live match highlighting', status:'online', port:'04',
+    desc:'Test a pattern against sample text with live highlighting and a match list.', icon:'regex' },
+
+  { id:'portfolio', group:'project', title:'Portfolio', status:'online', port:'01',
+    desc:'Professional portfolio built from my CV — experience, skills, education, and contact.',
+    icon:'app', stack:['HTML','CSS','JavaScript'], url: EXTERNAL.portfolio },
+  { id:'chat', group:'project', title:'Chatbot', status:'beta', port:'02',
+    desc:'A small rule-based assistant running client-side — wired and ready to point at a real model or bot API.',
     icon:'chat', stack:['JavaScript','Rule engine','API-ready'] },
-  { id:'alert', group:'project', title:'Telegram Alert', status:'beta', port:'02',
+  { id:'alert', group:'project', title:'Telegram Alert', status:'beta', port:'03',
     desc:'Composes and arms an alert payload the way it would ship to a Telegram bot webhook, for on-call and deploy notifications.',
     icon:'bell', stack:['Telegram Bot API','Webhooks','Node.js'] },
-  { id:'miniapp', group:'project', title:'Mini App', status:'idle', port:'03',
+  { id:'miniapp', group:'project', title:'Mini App', status:'idle', port:'04',
     desc:'A companion Telegram mini app that surfaces this same module set as a tile launcher inside a chat.',
-    icon:'app', stack:['Telegram Mini Apps','React'] },
-  { id:'moreproject', group:'project', title:'Add project', status:'idle', port:'—',
-    desc:'Larger builds with their own scope, stack and status live here as they ship.',
-    icon:'plus', stack:['Your stack'] },
+    icon:'app', stack:['Telegram Mini Apps','HTML/CSS/JS'] },
 ];
 
 const TOOLS = MODULES.filter(m=>m.group==='tool');
@@ -508,13 +514,13 @@ function toast(msg){
 
 function openModule(id){
   const m = MODULES.find(x=>x.id===id);
+  if(m?.url){ window.open(m.url, '_blank', 'noopener'); return; }
   if(id==='codec') return renderCodec(m);
   if(id==='jwt') return renderJwt(m);
   if(id==='regex') return renderRegex(m);
   if(id==='chat') return renderChat(m);
   if(id==='alert') return renderAlert(m);
   if(id==='miniapp') return renderMiniApp(m);
-  if(id==='moretool' || id==='moreproject') return renderMore(m);
 }
 
 /* ================= 1. Encode / Decode ================= */
