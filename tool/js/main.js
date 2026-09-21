@@ -308,6 +308,7 @@
       <aside class="sidebar ${state.collapsed ? 'collapsed' : ''}" id="sidebar">
         <div class="top-actions">
           <a class="back-link" href="https://github.kakronayan.dev/">← Workspace</a>
+          <a class="back-link" href="https://github.com/kakronayan">Contributor</a>
           <button class="theme-btn" id="themeBtn" type="button">Theme</button>
         </div>
         <div class="console-bar">
