@@ -1,6 +1,6 @@
 # kakronayan.github.io
 
-Personal workspace hub for [github.kakronayan.dev](https://github.kakronayan.dev).
+Personal workspace hub for [kakronayan.github.io](https://kakronayan.github.io).
 
 ## Contributors
 

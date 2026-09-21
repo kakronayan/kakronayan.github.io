@@ -307,13 +307,14 @@
     document.getElementById('app').innerHTML = `
       <aside class="sidebar ${state.collapsed ? 'collapsed' : ''}" id="sidebar">
         <div class="top-actions">
-          <a class="back-link" href="https://github.kakronayan.dev/">← Workspace</a>
+          <a class="back-link" href="https://kakronayan.github.io/">← Workspace</a>
           <a class="back-link" href="https://github.com/kakronayan">Contributor</a>
           <button class="theme-btn" id="themeBtn" type="button">Theme</button>
         </div>
         <div class="console-bar">
-          <span><span class="blink"></span><span class="live">SYSTEM NOMINAL</span></span>
-          <span>${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}</span>
+          <span class="seg"><span class="blink"></span><span class="dot-live">SYSTEM NOMINAL</span></span>
+          <span class="seg">${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}</span>
+          <span class="seg">UPTIME ${uptime}</span>
         </div>
         <div class="sidebar-head">
           <div class="sidebar-copy">
@@ -326,7 +327,7 @@
         <nav class="tool-nav" id="toolNav">${renderNav()}</nav>
       </aside>
       <main class="main">
-        <div class="status-bar"><strong>${tool.name}</strong> runs locally after the page loads. Uptime ${uptime}.</div>
+        <div class="status-bar"><strong>${tool.name}</strong> runs locally after the page loads — no data leaves your browser.</div>
         <section class="tool-panel">
           <div class="tool-panel-head">
             <span class="badge">Local input</span>
@@ -457,11 +458,15 @@
       if (!bar) return;
       const tool = TOOLS.find((t) => t.id === state.tool);
       const s = Math.floor((Date.now() - bootTime) / 1000);
-      bar.innerHTML = `<strong>${tool.name}</strong> runs locally after the page loads. Uptime ${pad(Math.floor(s / 3600))}:${pad(Math.floor((s / 60) % 60))}:${pad(s % 60)}.`;
-      const clock = document.querySelector('.console-bar span:last-child');
+      bar.innerHTML = `<strong>${tool.name}</strong> runs locally after the page loads — no data leaves your browser.`;
+      const clock = document.querySelector('.console-bar .seg:nth-child(2)');
+      const uptimeEl = document.querySelector('.console-bar .seg:nth-child(3)');
       if (clock) {
         const now = new Date();
         clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      }
+      if (uptimeEl) {
+        uptimeEl.textContent = `UPTIME ${pad(Math.floor(s / 3600))}:${pad(Math.floor((s / 60) % 60))}:${pad(s % 60)}`;
       }
     }, 1000);
   }
