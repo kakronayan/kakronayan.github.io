@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Console — Senior Full-Stack Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+  /* ============ Tokens ============ */
+  :root{
+    --bg: #eef1f4;
+    --panel: #ffffff;
+    --panel-raised: #ffffff;
+    --line: #d7dde3;
+    --text: #171b1f;
+    --text-dim: #5b6572;
+    --text-faint: #8992a0;
+    --accent: #0f8b8d;
+    --accent-soft: rgba(15,139,141,.12);
+    --amber: #b3690a;
+    --amber-soft: rgba(179,105,10,.12);
+    --red: #b3261e;
+    --red-soft: rgba(179,38,30,.1);
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --shadow: 0 1px 2px rgba(20,25,30,.06);
+    --radius: 3px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #0b0e12;
+      --panel: #12161c;
+      --panel-raised: #161b22;
+      --line: #232a33;
+      --text: #e7ebef;
+      --text-dim: #99a3af;
+      --text-faint: #5c6773;
+      --accent: #3ddad0;
+      --accent-soft: rgba(61,218,208,.1);
+      --amber: #f2b84b;
+      --amber-soft: rgba(242,184,75,.1);
+      --red: #ff6b6b;
+      --red-soft: rgba(255,107,107,.1);
+      --shadow: 0 1px 2px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #0b0e12;
+    --panel: #12161c;
+    --panel-raised: #161b22;
+    --line: #232a33;
+    --text: #e7ebef;
+    --text-dim: #99a3af;
+    --text-faint: #5c6773;
+    --accent: #3ddad0;
+    --accent-soft: rgba(61,218,208,.1);
+    --amber: #f2b84b;
+    --amber-soft: rgba(242,184,75,.1);
+    --red: #ff6b6b;
+    --red-soft: rgba(255,107,107,.1);
+    --shadow: 0 1px 2px rgba(0,0,0,.4);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-padding-top: env(safe-area-inset-top,0px); scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent-soft); color:var(--text); }
+
+  a{ color:inherit; }
+
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding: 28px 24px 80px;
+  }
+
+  /* ============ Header ============ */
+  .console-bar{
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:var(--mono); font-size:12px; color:var(--text-faint);
+    padding-bottom:18px; margin-bottom:18px; border-bottom:1px solid var(--line);
+    gap:12px; flex-wrap:wrap;
+  }
+  .console-bar .dot-live{ color:var(--accent); }
+  .console-bar .seg{ display:flex; align-items:center; gap:6px; }
+  .blink{
+    width:6px;height:6px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-soft);
+    animation:pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+
+  header.identity{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    gap:24px; flex-wrap:wrap; margin-bottom:34px;
+  }
+  .identity h1{
+    font-family:var(--sans); font-weight:800;
+    font-size:clamp(28px,4vw,40px); line-height:1.08; margin:0 0 10px;
+    letter-spacing:-0.02em;
+  }
+  .identity .role{
+    font-family:var(--mono); font-size:13px; color:var(--accent);
+    margin:0 0 14px; font-weight:500;
+  }
+  .identity p.desc{
+    max-width:52ch; color:var(--text-dim); font-size:14.5px; line-height:1.6; margin:0;
+  }
+  .stat-strip{
+    display:flex; gap:0; border:1px solid var(--line); border-radius:var(--radius);
+    overflow:hidden; font-family:var(--mono);
+  }
+  .stat-strip div{
+    padding:10px 18px; text-align:right; border-left:1px solid var(--line);
+  }
+  .stat-strip div:first-child{ border-left:none; }
+  .stat-strip .num{ font-size:18px; font-weight:700; color:var(--text); display:block; }
+  .stat-strip .lab{ font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; }
+
+  /* ============ Section label ============ */
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin: 8px 0 14px;
+  }
+  .section-head h2{
+    font-size:13px; font-family:var(--mono); font-weight:600;
+    color:var(--text-dim); margin:0; text-transform:uppercase; letter-spacing:.06em;
+    display:flex; align-items:center; gap:8px;
+  }
+  .sec-icon{ width:15px; height:15px; color:var(--accent); flex-shrink:0; }
+  .section-head span{ font-size:12px; color:var(--text-faint); font-family:var(--mono); }
+
+  /* ============ Module grid ============ */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+    margin-bottom:40px;
+  }
+  .card{
+    background:var(--panel);
+    padding:20px 20px 18px;
+    display:flex; flex-direction:column; gap:12px;
+    cursor:pointer;
+    position:relative;
+    transition: background .15s ease;
+    text-align:left;
+    border:none;
+    font-family:inherit;
+    color:inherit;
+    min-height:150px;
+  }
+  .card:hover, .card:focus-visible{ background:var(--panel-raised); outline:none; }
+  .card:focus-visible{ box-shadow: inset 0 0 0 2px var(--accent); }
+  .card-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .card-icon{
+    width:34px; height:34px; border:1px solid var(--line); border-radius:6px;
+    display:flex; align-items:center; justify-content:center; color:var(--accent);
+    flex-shrink:0; background:var(--accent-soft);
+  }
+  .card-icon svg{ width:17px; height:17px; }
+  .status-pill{
+    font-family:var(--mono); font-size:9.5px; letter-spacing:.05em;
+    padding:3px 7px; border-radius:20px; white-space:nowrap; font-weight:600;
+    display:flex; align-items:center; gap:5px;
+  }
+  .status-pill::before{ content:''; width:5px; height:5px; border-radius:50%; }
+  .status-pill.online{ color:var(--accent); background:var(--accent-soft); }
+  .status-pill.online::before{ background:var(--accent); }
+  .status-pill.beta{ color:var(--amber); background:var(--amber-soft); }
+  .status-pill.beta::before{ background:var(--amber); }
+  .status-pill.idle{ color:var(--text-faint); background:rgba(120,120,120,.1); }
+  .status-pill.idle::before{ background:var(--text-faint); }
+
+  .card h3{ font-size:15.5px; margin:0; font-weight:700; letter-spacing:-0.01em; }
+  .card p{ font-size:12.5px; color:var(--text-dim); line-height:1.5; margin:0; flex-grow:1; }
+  .card-foot{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--mono); font-size:10.5px; color:var(--text-faint);
+    padding-top:10px; border-top:1px dashed var(--line);
+  }
+  .card-foot .launch{ color:var(--text-dim); transition:color .15s; }
+  .card:hover .card-foot .launch{ color:var(--accent); }
+  .tag-row{ display:flex; gap:6px; flex-wrap:wrap; }
+  .chip{
+    font-family:var(--mono); font-size:10px; color:var(--text-dim);
+    border:1px solid var(--line); padding:3px 9px; border-radius:20px;
+  }
+
+  footer.foot{
+    font-family:var(--mono); border-top:1px solid var(--line);
+    margin-top:20px; padding-top:40px;
+  }
+  .foot-menu{
+    display:flex; justify-content:center; gap:40px;
+    margin-bottom:30px; flex-wrap:wrap;
+  }
+  .foot-menu a{
+    font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--text-dim); text-decoration:none;
+  }
+  .foot-menu a:hover{ color:var(--accent); }
+  .foot-credit{
+    text-align:center; padding-top:26px; border-top:1px solid var(--line);
+  }
+  .foot-credit .line1{ font-size:12.5px; color:var(--text); font-weight:600; }
+  .foot-credit .line1 .sep{ color:var(--text-faint); font-weight:400; margin:0 6px; }
+  .foot-credit .line2{ font-size:11px; color:var(--text-faint); margin-top:6px; letter-spacing:.03em; }
+  @media (max-width:560px){
+    .foot-menu{ gap:24px; }
+  }
+
+  /* ============ Modal ============ */
+  .overlay{
+    position:fixed; inset:0; background:rgba(5,7,10,.55); backdrop-filter:blur(2px);
+    display:none; align-items:flex-start; justify-content:center;
+    padding: 5vh 16px calc(5vh + env(safe-area-inset-bottom,0px));
+    overflow-y:auto; z-index:100;
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background:var(--panel); border:1px solid var(--line); border-radius:8px;
+    width:100%; max-width:640px; box-shadow:0 20px 60px rgba(0,0,0,.35);
+    animation:rise .18s ease;
+  }
+  @keyframes rise{ from{ opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+  .modal-head{
+    display:flex; align-items:center; gap:12px; padding:18px 20px;
+    border-bottom:1px solid var(--line);
+  }
+  .modal-head .card-icon{ width:30px; height:30px; }
+  .modal-head h3{ margin:0; font-size:15px; font-weight:700; flex-grow:1; }
+  .modal-head .mono-tag{ font-family:var(--mono); font-size:10.5px; color:var(--text-faint); }
+  .modal-close{
+    background:none; border:1px solid var(--line); color:var(--text-dim);
+    width:26px; height:26px; border-radius:6px; cursor:pointer; font-size:15px;
+    display:flex; align-items:center; justify-content:center; line-height:1;
+  }
+  .modal-close:hover{ color:var(--text); border-color:var(--text-faint); }
+  .modal-body{ padding:20px; max-height:70vh; overflow-y:auto; }
+
+  label.field-label{
+    font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-faint); display:block; margin-bottom:6px;
+  }
+  textarea, input[type=text], input[type=number], select{
+    width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
+    font-family:var(--mono); font-size:13px; padding:10px 11px; border-radius:6px;
+    resize:vertical; outline:none;
+  }
+  textarea:focus, input:focus, select:focus{ border-color:var(--accent); }
+  .field{ margin-bottom:14px; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .btn{
+    font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.02em;
+    padding:9px 16px; border-radius:6px; border:1px solid var(--line);
+    background:var(--panel-raised); color:var(--text); cursor:pointer;
+  }
+  .btn:hover{ border-color:var(--text-faint); }
+  .btn.primary{ background:var(--accent); color:#04201f; border-color:var(--accent); }
+  .btn.primary:hover{ filter:brightness(1.08); }
+  .btn-row{ display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 16px; }
+  .out{
+    background:var(--bg); border:1px solid var(--line); border-radius:6px;
+    padding:12px; font-family:var(--mono); font-size:12.5px; white-space:pre-wrap;
+    word-break:break-all; color:var(--text-dim); min-height:44px; line-height:1.5;
+  }
+  .out.err{ color:var(--red); border-color:var(--red-soft); background:var(--red-soft); }
+  .kv{ display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-family:var(--mono); font-size:12px; }
+  .kv dt{ color:var(--text-faint); }
+  .kv dd{ margin:0; color:var(--text); }
+  .note{ font-size:12px; color:var(--text-faint); line-height:1.6; margin-top:14px; }
+  mark{ background:var(--accent-soft); color:var(--accent); border-radius:3px; padding:0 1px; }
+  .jwt-part{ margin-bottom:12px; }
+  .jwt-part .tag{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; display:inline-block; padding:2px 7px; border-radius:20px; }
+  .tag.header{ color:var(--red); background:var(--red-soft); }
+  .tag.payload{ color:var(--accent); background:var(--accent-soft); }
+  .tag.sig{ color:var(--amber); background:var(--amber-soft); }
+
+  .chat-log{ display:flex; flex-direction:column; gap:8px; margin-bottom:12px; max-height:220px; overflow-y:auto; padding-right:2px; }
+  .bubble{ padding:8px 12px; border-radius:8px; font-size:13px; line-height:1.45; max-width:82%; }
+  .bubble.user{ background:var(--accent-soft); color:var(--text); align-self:flex-end; border:1px solid transparent; }
+  .bubble.bot{ background:var(--bg); border:1px solid var(--line); align-self:flex-start; color:var(--text-dim); }
+
+  .toast{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(10px);
+    background:var(--panel-raised); border:1px solid var(--line); color:var(--text);
+    font-family:var(--mono); font-size:12.5px; padding:11px 16px; border-radius:8px;
+    box-shadow:0 10px 30px rgba(0,0,0,.3); display:flex; align-items:center; gap:9px;
+    opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:200;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast .led{ width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+
+  .phone{
+    width:200px; border:8px solid var(--panel-raised); border-radius:26px; margin:0 auto 12px;
+    background:var(--bg); box-shadow:0 0 0 1px var(--line);
+  }
+  .phone-screen{ padding:14px 10px; }
+  .phone-tile-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .phone-tile{
+    aspect-ratio:1; background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--accent);
+  }
+  .phone-header{ font-family:var(--mono); font-size:9px; color:var(--text-faint); text-align:center; margin-bottom:10px; letter-spacing:.05em; }
+
+  .regex-preview{ line-height:1.7; }
+
+  @media (max-width:520px){
+    .row2{ grid-template-columns:1fr; }
+    .stat-strip{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="console-bar">
+    <div class="seg"><span class="blink"></span><span class="dot-live">SYSTEM NOMINAL</span></div>
+    <div class="seg" id="clock">--:--:--</div>
+    <div class="seg">UPTIME <span id="uptime">00:00:00</span></div>
+  </div>
+
+  <header class="identity" id="work">
+    <div>
+      <p class="role">SENIOR FULL-STACK LEAD</p>
+      <h1>Personal Workspace</h1>
+      <p class="desc">A working console for the tools I build and reach for daily — encoders, inspectors, bots and mini apps, kept in one place instead of scattered across tabs.</p>
+    </div>
+    <div class="stat-strip">
+      <div><span class="num" id="cnt-online">0</span><span class="lab">Online</span></div>
+      <div><span class="num" id="cnt-beta">0</span><span class="lab">Beta</span></div>
+      <div><span class="num" id="cnt-total">0</span><span class="lab">Modules</span></div>
+    </div>
+  </header>
+
+  <div class="section-head" id="tools-section">
+    <h2><svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-3-3-3 3-1-1 3-3z"/></svg>Tools</h2>
+    <span>small utilities · click to launch</span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="section-head" id="projects-section">
+    <h2><svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>Projects</h2>
+    <span>things I've built · click to open</span>
+  </div>
+
+  <div class="grid" id="projectList"></div>
+
+  <footer class="foot">
+    <nav class="foot-menu">
+      <a href="#work">Work Experience</a>
+      <a href="#projects-section">Projects</a>
+      <a href="#tools-section">Tools</a>
+    </nav>
+    <div class="foot-credit">
+      <div class="line1">Software Engineer<span class="sep">·</span>© 2025<span class="sep">·</span>Kakrona Yan</div>
+      <div class="line2">Banker | Full Stack | Cloud</div>
+    </div>
+  </footer>
+
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal"></div>
+</div>
+
+<div class="toast" id="toast"><span class="led"></span><span id="toast-text"></span></div>
+
+<script>
+/* ================= Module registry ================= */
+const ICONS = {
+  codec: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 7 4 12l4 5"/><path d="M16 7l4 5-4 5"/><path d="M13 5l-2 14"/></svg>',
+  jwt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4H5v16h2"/><path d="M17 4h2v16h-2"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v10H8l-4 4V5z"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
+  app: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>',
+  regex: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4v16M4 8l16 8M20 8 4 16"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
+};
+
+const MODULES = [
+  { id:'codec', group:'tool', title:'Encode / Decode', tag:'Base64 · URL · Hex', status:'online', port:'01',
+    desc:'Convert text to and from Base64, URL and hex encodings, instantly, both ways.', icon:'codec' },
+  { id:'jwt', group:'tool', title:'JWT Inspector', tag:'Header · Payload · Claims', status:'online', port:'02',
+    desc:'Paste a token to decode its header and payload and read the standard claims.', icon:'jwt' },
+  { id:'regex', group:'tool', title:'Regex Tester', tag:'Live match highlighting', status:'online', port:'03',
+    desc:'Test a pattern against sample text with live highlighting and a match list.', icon:'regex' },
+  { id:'moretool', group:'tool', title:'Add tool', tag:'Extend the toolbox', status:'idle', port:'—',
+    desc:'Small, single-purpose utilities live here — wire up a new one and register it.', icon:'plus' },
+
+  { id:'chat', group:'project', title:'Chatbot', status:'beta', port:'01',
+    desc:'A small rule-based assistant running client-side — this panel is wired and ready to point at a real model or bot API.',
+    icon:'chat', stack:['JavaScript','Rule engine','API-ready'] },
+  { id:'alert', group:'project', title:'Telegram Alert', status:'beta', port:'02',
+    desc:'Composes and arms an alert payload the way it would ship to a Telegram bot webhook, for on-call and deploy notifications.',
+    icon:'bell', stack:['Telegram Bot API','Webhooks','Node.js'] },
+  { id:'miniapp', group:'project', title:'Mini App', status:'idle', port:'03',
+    desc:'A companion Telegram mini app that surfaces this same module set as a tile launcher inside a chat.',
+    icon:'app', stack:['Telegram Mini Apps','React'] },
+  { id:'moreproject', group:'project', title:'Add project', status:'idle', port:'—',
+    desc:'Larger builds with their own scope, stack and status live here as they ship.',
+    icon:'plus', stack:['Your stack'] },
+];
+
+const TOOLS = MODULES.filter(m=>m.group==='tool');
+const PROJECTS = MODULES.filter(m=>m.group==='project');
+
+const grid = document.getElementById('grid');
+TOOLS.forEach(m=>{
+  const el = document.createElement('button');
+  el.className = 'card';
+  el.innerHTML = `
+    <div class="card-top">
+      <div class="card-icon">${ICONS[m.icon]}</div>
+      <span class="status-pill ${m.status}">${m.status}</span>
+    </div>
+    <div>
+      <h3>${m.title}</h3>
+    </div>
+    <p>${m.desc}</p>
+    <div class="card-foot"><span>PORT ${m.port} · ${m.tag}</span><span class="launch">launch →</span></div>
+  `;
+  el.addEventListener('click', ()=>openModule(m.id));
+  grid.appendChild(el);
+});
+
+const projectList = document.getElementById('projectList');
+PROJECTS.forEach(m=>{
+  const el = document.createElement('button');
+  el.className = 'card';
+  el.innerHTML = `
+    <div class="card-top">
+      <div class="card-icon">${ICONS[m.icon]}</div>
+      <span class="status-pill ${m.status}">${m.status}</span>
+    </div>
+    <div>
+      <h3>${m.title}</h3>
+    </div>
+    <p>${m.desc}</p>
+    <div class="tag-row">${m.stack.map(s=>`<span class="chip">${s}</span>`).join('')}</div>
+    <div class="card-foot"><span>PORT ${m.port}</span><span class="launch">open →</span></div>
+  `;
+  el.addEventListener('click', ()=>openModule(m.id));
+  projectList.appendChild(el);
+});
+
+document.getElementById('cnt-total').textContent = MODULES.length;
+document.getElementById('cnt-online').textContent = MODULES.filter(m=>m.status==='online').length;
+document.getElementById('cnt-beta').textContent = MODULES.filter(m=>m.status==='beta').length;
+
+/* ================= Clock / uptime ================= */
+const bootTime = Date.now();
+function pad(n){ return String(n).padStart(2,'0'); }
+function tick(){
+  const now = new Date();
+  document.getElementById('clock').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const s = Math.floor((Date.now()-bootTime)/1000);
+  document.getElementById('uptime').textContent = `${pad(Math.floor(s/3600))}:${pad(Math.floor(s/60)%60)}:${pad(s%60)}`;
+}
+tick(); setInterval(tick,1000);
+
+/* ================= Modal shell ================= */
+const overlay = document.getElementById('overlay');
+const modal = document.getElementById('modal');
+
+function shell(m, bodyHtml){
+  modal.innerHTML = `
+    <div class="modal-head">
+      <div class="card-icon">${ICONS[m.icon]}</div>
+      <h3>${m.title}</h3>
+      <span class="mono-tag">PORT ${m.port}</span>
+      <button class="modal-close" id="closeBtn" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">${bodyHtml}</div>
+  `;
+  overlay.classList.add('open');
+  document.getElementById('closeBtn').addEventListener('click', closeModal);
+}
+function closeModal(){ overlay.classList.remove('open'); modal.innerHTML=''; }
+overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+function openModule(id){
+  const m = MODULES.find(x=>x.id===id);
+  if(id==='codec') return renderCodec(m);
+  if(id==='jwt') return renderJwt(m);
+  if(id==='regex') return renderRegex(m);
+  if(id==='chat') return renderChat(m);
+  if(id==='alert') return renderAlert(m);
+  if(id==='miniapp') return renderMiniApp(m);
+  if(id==='moretool' || id==='moreproject') return renderMore(m);
+}
+
+/* ================= 1. Encode / Decode ================= */
+function renderCodec(m){
+  shell(m, `
+    <div class="field">
+      <label class="field-label">Input</label>
+      <textarea id="codecIn" rows="4" placeholder="Type or paste text…">Hello, workspace!</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" id="b64enc">Base64 encode</button>
+      <button class="btn" id="b64dec">Base64 decode</button>
+      <button class="btn" id="urlenc">URL encode</button>
+      <button class="btn" id="urldec">URL decode</button>
+      <button class="btn" id="hexenc">Hex encode</button>
+      <button class="btn" id="hexdec">Hex decode</button>
+    </div>
+    <label class="field-label">Output</label>
+    <div class="out" id="codecOut">—</div>
+  `);
+  const $ = id=>document.getElementById(id);
+  const out = txt=>{ $('codecOut').classList.remove('err'); $('codecOut').textContent = txt; };
+  const err = txt=>{ $('codecOut').classList.add('err'); $('codecOut').textContent = 'Error: '+txt; };
+  $('b64enc').onclick = ()=>{ try{ out(btoa(unescape(encodeURIComponent($('codecIn').value)))); }catch(e){ err(e.message); } };
+  $('b64dec').onclick = ()=>{ try{ out(decodeURIComponent(escape(atob($('codecIn').value.trim())))); }catch(e){ err('not valid Base64'); } };
+  $('urlenc').onclick = ()=>{ out(encodeURIComponent($('codecIn').value)); };
+  $('urldec').onclick = ()=>{ try{ out(decodeURIComponent($('codecIn').value)); }catch(e){ err('not valid URL encoding'); } };
+  $('hexenc').onclick = ()=>{ out([...new TextEncoder().encode($('codecIn').value)].map(b=>b.toString(16).padStart(2,'0')).join(' ')); };
+  $('hexdec').onclick = ()=>{
+    try{
+      const clean = $('codecIn').value.trim().replace(/\s+/g,'');
+      if(clean.length%2!==0 || /[^0-9a-fA-F]/.test(clean)) throw new Error();
+      const bytes = clean.match(/.{2}/g).map(h=>parseInt(h,16));
+      out(new TextDecoder().decode(new Uint8Array(bytes)));
+    }catch(e){ err('not valid hex'); }
+  };
+}
+
+/* ================= 2. JWT Inspector ================= */
+function b64urlDecode(str){
+  str = str.replace(/-/g,'+').replace(/_/g,'/');
+  while(str.length % 4) str += '=';
+  return decodeURIComponent(escape(atob(str)));
+}
+function renderJwt(m){
+  shell(m, `
+    <div class="field">
+      <label class="field-label">Token</label>
+      <textarea id="jwtIn" rows="4" placeholder="Paste a JWT (header.payload.signature)…"></textarea>
+    </div>
+    <div class="btn-row"><button class="btn primary" id="jwtGo">Decode</button></div>
+    <div id="jwtOut"></div>
+    <p class="note">Decoding only — this does not verify the signature. Never paste a token you don't trust into any tool.</p>
+  `);
+  document.getElementById('jwtGo').onclick = ()=>{
+    const raw = document.getElementById('jwtIn').value.trim();
+    const box = document.getElementById('jwtOut');
+    const parts = raw.split('.');
+    if(parts.length < 2){ box.innerHTML = `<div class="out err">Error: doesn't look like a JWT (expected header.payload.signature)</div>`; return; }
+    try{
+      const header = JSON.parse(b64urlDecode(parts[0]));
+      const payload = JSON.parse(b64urlDecode(parts[1]));
+      const fmtTime = v => typeof v==='number' ? `${new Date(v*1000).toISOString()} (${v})` : String(v);
+      let claimsHtml = '<dl class="kv">';
+      for(const [k,v] of Object.entries(payload)){
+        const val = (['exp','iat','nbf'].includes(k)) ? fmtTime(v) : (typeof v==='object'? JSON.stringify(v): String(v));
+        claimsHtml += `<dt>${k}</dt><dd>${val}</dd>`;
+      }
+      claimsHtml += '</dl>';
+      let expNote = '';
+      if(payload.exp){
+        const expired = Date.now() > payload.exp*1000;
+        expNote = `<p class="note" style="color:${expired?'var(--red)':'var(--accent)'}">${expired?'⚠ token expired':'✓ token not yet expired'}</p>`;
+      }
+      box.innerHTML = `
+        <div class="jwt-part"><span class="tag header">header</span><div class="out">${JSON.stringify(header,null,2)}</div></div>
+        <div class="jwt-part"><span class="tag payload">payload</span><div class="out">${JSON.stringify(payload,null,2)}</div>${expNote}</div>
+        <div class="jwt-part"><span class="tag sig">signature</span><div class="out">${parts[2] ? parts[2] : '(none)'} <br><span style="color:var(--text-faint)">— not verified by this tool</span></div></div>
+        <dl class="kv" style="margin-top:8px;">${claimsHtml.replace('<dl class="kv">','').replace('</dl>','')}</dl>
+      `;
+    }catch(e){
+      box.innerHTML = `<div class="out err">Error: couldn't parse token — ${e.message}</div>`;
+    }
+  };
+}
+
+/* ================= 3. Regex Tester ================= */
+function renderRegex(m){
+  shell(m, `
+    <div class="row2">
+      <div class="field">
+        <label class="field-label">Pattern</label>
+        <input type="text" id="rxPattern" value="\\\\b[\\\\w.-]+@[\\\\w.-]+\\\\.\\\\w+\\\\b">
+      </div>
+      <div class="field">
+        <label class="field-label">Flags</label>
+        <input type="text" id="rxFlags" value="g">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Test string</label>
+      <textarea id="rxText" rows="4">Contact us at hello@example.com or support@workspace.dev for help.</textarea>
+    </div>
+    <label class="field-label">Preview</label>
+    <div class="out regex-preview" id="rxPreview">—</div>
+    <label class="field-label" style="margin-top:12px;">Matches</label>
+    <div class="out" id="rxMatches">—</div>
+  `);
+  const run = ()=>{
+    const pat = document.getElementById('rxPattern').value;
+    const flags = document.getElementById('rxFlags').value.replace(/[^gimsuy]/g,'');
+    const text = document.getElementById('rxText').value;
+    const prev = document.getElementById('rxPreview');
+    const list = document.getElementById('rxMatches');
+    try{
+      const re = new RegExp(pat, flags.includes('g') ? flags : flags+'g');
+      let html = ''; let last = 0; let m; let matches = [];
+      const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      while((m = re.exec(text)) !== null){
+        html += esc(text.slice(last, m.index)) + '<mark>' + esc(m[0]) + '</mark>';
+        last = m.index + (m[0].length || 1);
+        matches.push(m);
+        if(m[0].length===0) re.lastIndex++;
+        if(matches.length > 500) break;
+      }
+      html += esc(text.slice(last));
+      prev.classList.remove('err');
+      prev.innerHTML = html || '<span style="color:var(--text-faint)">(empty)</span>';
+      list.classList.remove('err');
+      list.textContent = matches.length
+        ? matches.map((mm,i)=>`#${i+1}  "${mm[0]}"  @${mm.index}${mm.length>1? '  groups: '+JSON.stringify(mm.slice(1)) : ''}`).join('\n')
+        : 'No matches';
+    }catch(e){
+      prev.classList.add('err'); prev.textContent = 'Error: '+e.message;
+      list.classList.add('err'); list.textContent = '—';
+    }
+  };
+  ['rxPattern','rxFlags','rxText'].forEach(id=>document.getElementById(id).addEventListener('input', run));
+  run();
+}
+
+/* ================= 4. Chatbot demo ================= */
+function renderChat(m){
+  shell(m, `
+    <div class="chat-log" id="chatLog">
+      <div class="bubble bot">Local demo bot online. Ask me about this workspace, or say hi.</div>
+    </div>
+    <div class="btn-row" style="margin-bottom:8px;">
+      <input type="text" id="chatIn" placeholder="Type a message…" style="flex:1;">
+      <button class="btn primary" id="chatSend">Send</button>
+    </div>
+    <p class="note">Rule-based demo running fully in your browser. In production this panel would call your model or bot API instead.</p>
+  `);
+  const log = document.getElementById('chatLog');
+  const input = document.getElementById('chatIn');
+  const push = (who, text)=>{
+    const b = document.createElement('div');
+    b.className = 'bubble ' + who;
+    b.textContent = text;
+    log.appendChild(b);
+    log.scrollTop = log.scrollHeight;
+  };
+  function reply(msg){
+    const t = msg.toLowerCase();
+    if(/hi|hello|hey/.test(t)) return "Hey — this console holds the tools I use day to day. Try opening JWT Inspector or Regex Tester.";
+    if(/help/.test(t)) return "Sure. Each card on the workspace opens a small tool — most run entirely client-side.";
+    if(/who|you/.test(t)) return "I'm a lightweight demo agent. Swap me for a real model by pointing this panel at your API.";
+    if(/thanks|thank you/.test(t)) return "Anytime.";
+    return "Noted — this demo replies with canned logic, but the panel is wired and ready for a real endpoint.";
+  }
+  function send(){
+    const v = input.value.trim();
+    if(!v) return;
+    push('user', v); input.value='';
+    setTimeout(()=>push('bot', reply(v)), 380);
+  }
+  document.getElementById('chatSend').onclick = send;
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') send(); });
+}
+
+/* ================= 5. Telegram Alert ================= */
+function renderAlert(m){
+  shell(m, `
+    <div class="field">
+      <label class="field-label">Chat / channel ID</label>
+      <input type="text" id="alChat" placeholder="-100XXXXXXXXXX" value="-1009XXXXXXXX">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label class="field-label">Severity</label>
+        <select id="alSev">
+          <option>info</option>
+          <option selected>warning</option>
+          <option>critical</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Source</label>
+        <input type="text" id="alSrc" value="deploy-pipeline">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Message</label>
+      <textarea id="alMsg" rows="3">Build #482 finished with warnings — check the logs.</textarea>
+    </div>
+    <div class="btn-row"><button class="btn primary" id="alSend">Arm alert</button></div>
+    <label class="field-label">Payload preview</label>
+    <div class="out" id="alOut">—</div>
+    <p class="note">This demo simulates the webhook call and shows the JSON payload — no message is actually sent. Wire it to your bot token and chat ID to go live.</p>
+  `);
+  document.getElementById('alSend').onclick = ()=>{
+    const payload = {
+      chat_id: document.getElementById('alChat').value,
+      severity: document.getElementById('alSev').value,
+      source: document.getElementById('alSrc').value,
+      text: document.getElementById('alMsg').value,
+      sent_at: new Date().toISOString()
+    };
+    document.getElementById('alOut').textContent = JSON.stringify(payload, null, 2);
+    toast(`Alert queued (${payload.severity}) — demo only, not delivered`);
+  };
+}
+
+/* ================= 6. Mini App preview ================= */
+function renderMiniApp(m){
+  shell(m, `
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-header">◆ WORKSPACE MINI APP</div>
+        <div class="phone-tile-grid">
+          <div class="phone-tile">🔐</div>
+          <div class="phone-tile">🧩</div>
+          <div class="phone-tile">🔔</div>
+          <div class="phone-tile">🧪</div>
+          <div class="phone-tile">💬</div>
+          <div class="phone-tile">＋</div>
+        </div>
+      </div>
+    </div>
+    <p class="note" style="text-align:center;">Preview of the tile launcher for the companion mini app — the same module set, packaged for Telegram's in-chat surface.</p>
+  `);
+}
+
+/* ================= 7. Add module ================= */
+function renderMore(m){
+  shell(m, `
+    <p style="font-size:13.5px; color:var(--text-dim); line-height:1.6;">This console is a template — every card is one object in the module registry. To add a tool:</p>
+    <div class="out" style="margin-top:4px;">MODULES.push({
+  id: 'yourtool',
+  title: 'Your Tool',
+  tag: 'short description',
+  status: 'beta',
+  port: '07',
+  desc: 'One line about what it does.',
+  icon: 'codec'
+});</div>
+    <p class="note">Then add a matching <code>renderYourTool()</code> function and a case in <code>openModule()</code>.</p>
+  `);
+}
+</script>
+</body>
+</html>
