@@ -305,8 +305,10 @@
     const s = Math.floor((Date.now() - bootTime) / 1000);
     const uptime = `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s / 60) % 60))}:${pad(s % 60)}`;
 
-    document.getElementById('app').innerHTML = `
-      <aside class="sidebar ${state.collapsed ? 'collapsed' : ''}" id="sidebar">
+    document.getElementById("app").innerHTML = `
+      <div class="bg-grid"></div>
+      <div class="bg-glow"></div>
+      <aside class="sidebar ${state.collapsed ? "collapsed" : ""}" id="sidebar">
         <div class="top-actions">
           <a class="back-link" href="${SITE}/">← Workspace</a>
           <a class="back-link" href="https://github.com/kakronayan">Contributor</a>
@@ -323,7 +325,7 @@
             <h1>Browser Tools</h1>
             <p class="desc">Fast browser tools for transforming, inspecting, and validating text without leaving the page.</p>
           </div>
-          <button class="collapse-btn" id="collapseBtn" type="button">${state.collapsed ? '>' : '<'}</button>
+          <button class="collapse-btn" id="collapseBtn" type="button">${state.collapsed ? ">" : "<"}</button>
         </div>
         <nav class="tool-nav" id="toolNav">${renderNav()}</nav>
       </aside>
@@ -346,94 +348,99 @@
   }
 
   function bindEvents(latestOutput) {
-    document.getElementById('themeBtn').addEventListener('click', toggleTheme);
-    document.getElementById('collapseBtn').addEventListener('click', () => {
+    document.getElementById("themeBtn").addEventListener("click", toggleTheme);
+    document.getElementById("collapseBtn").addEventListener("click", () => {
       state.collapsed = !state.collapsed;
       render();
     });
 
-    document.querySelectorAll('[data-tool]').forEach((btn) => {
-      btn.addEventListener('click', () => {
+    document.querySelectorAll("[data-tool]").forEach((btn) => {
+      btn.addEventListener("click", () => {
         state.tool = btn.dataset.tool;
-        history.pushState({ tool: state.tool }, '', `#${state.tool}`);
+        history.pushState({ tool: state.tool }, "", `#${state.tool}`);
         render();
       });
     });
 
-    document.querySelectorAll('[data-mode]').forEach((btn) => {
-      btn.addEventListener('click', () => {
+    document.querySelectorAll("[data-mode]").forEach((btn) => {
+      btn.addEventListener("click", () => {
         const group = btn.dataset.group;
         const mode = btn.dataset.mode;
-        if (group === 'base64') state.base64.mode = mode;
-        if (group === 'text') state.text.mode = mode;
-        if (group === 'encoding') state.encoding.mode = mode;
-        if (group === 'json') state.json.mode = mode;
-        if (group === 'crypto') state.crypto.algorithm = mode;
-        if (group === 'time') state.time.mode = mode;
+        if (group === "base64") state.base64.mode = mode;
+        if (group === "text") state.text.mode = mode;
+        if (group === "encoding") state.encoding.mode = mode;
+        if (group === "json") state.json.mode = mode;
+        if (group === "crypto") state.crypto.algorithm = mode;
+        if (group === "time") state.time.mode = mode;
         render();
       });
     });
 
-    const input = document.getElementById('toolInput');
+    const input = document.getElementById("toolInput");
     if (input) {
-      input.addEventListener('input', (e) => {
+      input.addEventListener("input", (e) => {
         const value = e.target.value;
-        if (state.tool === 'base64') state.base64.input = value;
-        if (state.tool === 'jwt') state.jwt.input = value;
-        if (state.tool === 'text') state.text.input = value;
-        if (state.tool === 'encoding') state.encoding.input = value;
-        if (state.tool === 'json') state.json.input = value;
-        if (state.tool === 'crypto') state.crypto.input = value;
-        if (state.tool === 'time') state.time.input = value;
-        if (state.tool === 'regex') state.regex.input = value;
+        if (state.tool === "base64") state.base64.input = value;
+        if (state.tool === "jwt") state.jwt.input = value;
+        if (state.tool === "text") state.text.input = value;
+        if (state.tool === "encoding") state.encoding.input = value;
+        if (state.tool === "json") state.json.input = value;
+        if (state.tool === "crypto") state.crypto.input = value;
+        if (state.tool === "time") state.time.input = value;
+        if (state.tool === "regex") state.regex.input = value;
         updateOutput();
       });
     }
 
-    const jsonPath = document.getElementById('jsonPath');
+    const jsonPath = document.getElementById("jsonPath");
     if (jsonPath) {
-      jsonPath.addEventListener('input', (e) => {
+      jsonPath.addEventListener("input", (e) => {
         state.json.path = e.target.value;
         updateOutput();
       });
     }
 
-    const colorPrimary = document.getElementById('colorPrimary');
-    const colorSecondary = document.getElementById('colorSecondary');
+    const colorPrimary = document.getElementById("colorPrimary");
+    const colorSecondary = document.getElementById("colorSecondary");
     if (colorPrimary) {
-      colorPrimary.addEventListener('input', (e) => {
+      colorPrimary.addEventListener("input", (e) => {
         state.color.primary = e.target.value;
         updateOutput();
       });
     }
     if (colorSecondary) {
-      colorSecondary.addEventListener('input', (e) => {
+      colorSecondary.addEventListener("input", (e) => {
         state.color.secondary = e.target.value;
         updateOutput();
       });
     }
 
-    const regexPattern = document.getElementById('regexPattern');
-    const regexFlags = document.getElementById('regexFlags');
+    const regexPattern = document.getElementById("regexPattern");
+    const regexFlags = document.getElementById("regexFlags");
     if (regexPattern) {
-      regexPattern.addEventListener('input', (e) => {
+      regexPattern.addEventListener("input", (e) => {
         state.regex.pattern = e.target.value;
         updateOutput();
       });
     }
     if (regexFlags) {
-      regexFlags.addEventListener('input', (e) => {
+      regexFlags.addEventListener("input", (e) => {
         state.regex.flags = e.target.value;
         updateOutput();
       });
     }
 
-    const hashBtn = document.getElementById('hashBtn');
+    const hashBtn = document.getElementById("hashBtn");
     if (hashBtn) {
-      hashBtn.addEventListener('click', async () => {
+      hashBtn.addEventListener("click", async () => {
         try {
-          const digest = await crypto.subtle.digest(state.crypto.algorithm, U.textEncoder.encode(state.crypto.input));
-          state.crypto.output = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+          const digest = await crypto.subtle.digest(
+            state.crypto.algorithm,
+            U.textEncoder.encode(state.crypto.input),
+          );
+          state.crypto.output = Array.from(new Uint8Array(digest), (byte) =>
+            byte.toString(16).padStart(2, "0"),
+          ).join("");
           render();
         } catch (error) {
           state.crypto.output = `Error: ${error.message}`;
@@ -442,26 +449,32 @@
       });
     }
 
-    const uuidBtn = document.getElementById('uuidBtn');
+    const uuidBtn = document.getElementById("uuidBtn");
     if (uuidBtn) {
-      uuidBtn.addEventListener('click', () => {
+      uuidBtn.addEventListener("click", () => {
         state.crypto.output = crypto.randomUUID();
         render();
       });
     }
 
-    document.querySelectorAll('[data-copy]').forEach((btn) => {
-      btn.addEventListener('click', () => copyText(btn.dataset.copy || document.getElementById('toolOutput')?.textContent || ''));
+    document.querySelectorAll("[data-copy]").forEach((btn) => {
+      btn.addEventListener("click", () =>
+        copyText(
+          btn.dataset.copy ||
+            document.getElementById("toolOutput")?.textContent ||
+            "",
+        ),
+      );
     });
 
     setInterval(() => {
-      const bar = document.querySelector('.status-bar');
+      const bar = document.querySelector(".status-bar");
       if (!bar) return;
       const tool = TOOLS.find((t) => t.id === state.tool);
       const s = Math.floor((Date.now() - bootTime) / 1000);
       bar.innerHTML = `<strong>${tool.name}</strong> runs locally after the page loads — no data leaves your browser.`;
-      const clock = document.querySelector('.console-bar .seg:nth-child(2)');
-      const uptimeEl = document.querySelector('.console-bar .seg:nth-child(3)');
+      const clock = document.querySelector(".console-bar .seg:nth-child(2)");
+      const uptimeEl = document.querySelector(".console-bar .seg:nth-child(3)");
       if (clock) {
         const now = new Date();
         clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
@@ -473,34 +486,35 @@
   }
 
   function updateOutput() {
-    const out = document.getElementById('toolOutput');
-    const copyBtn = document.querySelector('.copy-btn');
+    const out = document.getElementById("toolOutput");
+    const copyBtn = document.querySelector(".copy-btn");
     if (!out) return;
     const value = computeOutput();
     out.textContent = value;
-    out.classList.toggle('error', value.startsWith('Error:') || value.startsWith('Invalid') || value.startsWith('Unable'));
+    out.classList.toggle(
+      "error",
+      value.startsWith("Error:") ||
+        value.startsWith("Invalid") ||
+        value.startsWith("Unable"),
+    );
     if (copyBtn) copyBtn.dataset.copy = value;
   }
 
   function toggleTheme() {
     const root = document.documentElement;
-    const current = root.getAttribute('data-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (!current) root.setAttribute('data-theme', prefersDark ? 'light' : 'dark');
-    else if (current === 'dark') root.setAttribute('data-theme', 'light');
-    else root.removeAttribute('data-theme');
-    localStorage.setItem('theme', root.getAttribute('data-theme') || 'auto');
+    const current = root.getAttribute("data-theme") || "dark";
+    const next = current === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
   }
 
-  window.addEventListener('popstate', () => {
+  window.addEventListener("popstate", () => {
     state.tool = getToolFromHash();
     render();
   });
 
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme && savedTheme !== 'auto') {
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  }
+  const savedTheme = localStorage.getItem("theme");
+  document.documentElement.setAttribute("data-theme", savedTheme || "dark");
 
   if (!location.hash) history.replaceState({ tool: state.tool }, '', `#${state.tool}`);
   render();
