@@ -83,15 +83,9 @@
   <section class="block" id="education-section">
     <div class="section-head">
       <h2><span class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.4 2.7 3 6 3s6-1.6 6-3v-5"/></svg></span>My Education Projects</h2>
+      <span>things I've built · click to open</span>
     </div>
-    <a class="sub-item" href="https://kakronayan.github.io/khmer-handwriting/" target="_blank" rel="noopener">
-      <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg></span>
-      <span class="sub-copy">
-        <strong>Khmer Handwriting</strong>
-        <span>Learn Khmer characters, strokes, and guided practice</span>
-      </span>
-      <span class="launch">open →</span>
-    </a>
+    <div class="grid" id="educationList"></div>
   </section>
 
   <section class="block" id="ai-section">
@@ -141,12 +135,14 @@ const ICONS = {
   bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
   app: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>',
   regex: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4v16M4 8l16 8M20 8 4 16"/></svg>',
-  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 3 3"/></svg>'
 };
 
 const SITE = 'https://kakronayan.github.io';
 const EXTERNAL = {
   tools: `${SITE}/tools/`,
+  khmer: `${SITE}/khmer-handwriting/`,
 };
 
 const MODULES = [
@@ -158,6 +154,10 @@ const MODULES = [
     desc:'Paste a token to decode its header and payload and read the standard claims.', icon:'jwt' },
   { id:'regex', group:'tool', title:'Regex Tester', tag:'Live match highlighting', status:'online', port:'04',
     desc:'Test a pattern against sample text with live highlighting and a match list.', icon:'regex' },
+
+  { id:'khmer', group:'education', title:'Khmer Handwriting', status:'online', port:'01',
+    desc:'Learn Khmer characters, strokes, and guided practice.',
+    icon:'pen', stack:['Next.js','TypeScript','Canvas'], url: EXTERNAL.khmer },
 
   { id:'chat', group:'project', title:'Chatbot', status:'beta', port:'01',
     desc:'A small rule-based assistant running client-side — wired and ready to point at a real model or bot API.',
@@ -171,7 +171,27 @@ const MODULES = [
 ];
 
 const TOOLS = MODULES.filter(m=>m.group==='tool');
+const EDUCATION = MODULES.filter(m=>m.group==='education');
 const PROJECTS = MODULES.filter(m=>m.group==='project');
+
+function projectCard(m){
+  const el = document.createElement('button');
+  el.className = 'card';
+  el.innerHTML = `
+    <div class="card-top">
+      <div class="card-icon">${ICONS[m.icon]}</div>
+      <span class="status-pill ${m.status}">${m.status}</span>
+    </div>
+    <div>
+      <h3>${m.title}</h3>
+    </div>
+    <p>${m.desc}</p>
+    <div class="tag-row">${m.stack.map(s=>`<span class="chip">${s}</span>`).join('')}</div>
+    <div class="card-foot"><span>PORT ${m.port}</span><span class="launch">open →</span></div>
+  `;
+  el.addEventListener('click', ()=>openModule(m.id));
+  return el;
+}
 
 const grid = document.getElementById('grid');
 TOOLS.forEach(m=>{
@@ -192,25 +212,11 @@ TOOLS.forEach(m=>{
   grid.appendChild(el);
 });
 
+const educationList = document.getElementById('educationList');
+EDUCATION.forEach(m=>educationList.appendChild(projectCard(m)));
+
 const projectList = document.getElementById('projectList');
-PROJECTS.forEach(m=>{
-  const el = document.createElement('button');
-  el.className = 'card';
-  el.innerHTML = `
-    <div class="card-top">
-      <div class="card-icon">${ICONS[m.icon]}</div>
-      <span class="status-pill ${m.status}">${m.status}</span>
-    </div>
-    <div>
-      <h3>${m.title}</h3>
-    </div>
-    <p>${m.desc}</p>
-    <div class="tag-row">${m.stack.map(s=>`<span class="chip">${s}</span>`).join('')}</div>
-    <div class="card-foot"><span>PORT ${m.port}</span><span class="launch">open →</span></div>
-  `;
-  el.addEventListener('click', ()=>openModule(m.id));
-  projectList.appendChild(el);
-});
+PROJECTS.forEach(m=>projectList.appendChild(projectCard(m)));
 
 document.getElementById('cnt-total').textContent = MODULES.length;
 document.getElementById('cnt-online').textContent = MODULES.filter(m=>m.status==='online').length;
